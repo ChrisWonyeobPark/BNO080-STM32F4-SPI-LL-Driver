@@ -33,7 +33,7 @@
  * BNO080.c and BNO080.h library Rev. 1.0 (https://github.com/ChrisWonyeobPark/BNO080-STM32F4-SPI-LL-Driver/)
  *
  * Modified by ChrisP(Wonyeob Park) @ M-HIVE Embedded Academy, Dec, 2019
- * Rev. 1.0
+ * Rev. 1.1
  *
  * https://github.com/ChrisWonyeobPark/
  * https://cafe.naver.com/mhiveacademy
@@ -130,6 +130,14 @@ void BNO080_Calibration(void)
 			if(BNO080_calibrationComplete() == 1)
 			{
 				printf("\nCalibration data successfully stored\n");
+				LL_TIM_CC_EnableChannel(TIM3, LL_TIM_CHANNEL_CH4);
+
+				TIM3->PSC = 2000;
+				HAL_Delay(300);
+				TIM3->PSC = 1500;
+				HAL_Delay(300);
+
+				LL_TIM_CC_DisableChannel(TIM3, LL_TIM_CHANNEL_CH4);
 				HAL_Delay(1000);
 				break;
 			}
@@ -139,6 +147,14 @@ void BNO080_Calibration(void)
 	if(counter == 0)
 	{
 		printf("\nCalibration data failed to store. Please try again.\n");
+		LL_TIM_CC_EnableChannel(TIM3, LL_TIM_CHANNEL_CH4);
+
+		TIM3->PSC = 1500;
+		HAL_Delay(300);
+		TIM3->PSC = 2000;
+		HAL_Delay(300);
+
+		LL_TIM_CC_DisableChannel(TIM3, LL_TIM_CHANNEL_CH4);
 	}
 
 	RESET_LOW();
