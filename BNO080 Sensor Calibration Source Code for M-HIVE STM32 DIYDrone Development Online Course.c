@@ -21,7 +21,7 @@
 
 /**
 
- * BNO080 Sensor Calibration Source Code for M-HIVE STM32 DIYDrone Development Online Course.txt
+ * BNO080 Sensor Calibration Source Code for M-HIVE STM32 DIYDrone Development Online Course.c
  * @author ChrisP @ M-HIVE
  * 
  * This library source code has been modified for M-HIVE STM32 DIYDrone Development Online Course.
@@ -33,7 +33,7 @@
  * BNO080.c and BNO080.h library Rev. 1.0 (https://github.com/ChrisWonyeobPark/BNO080-STM32F4-SPI-LL-Driver/)
  *
  * Modified by ChrisP(Wonyeob Park) @ M-HIVE Embedded Academy, Dec, 2019
- * Rev. 1.1
+ * Rev. 1.2
  *
  * https://github.com/ChrisWonyeobPark/
  * https://cafe.naver.com/mhiveacademy
@@ -44,20 +44,20 @@
 
 void BNO080_Calibration(void)
 {
-	RESET_LOW();
-	HAL_Delay(200);
-	RESET_HIGH();
-	HAL_Delay(300); //Reset BNO080
+	//Resets BNO080 to disable All output
+	BNO080_Initialization();
 
 	//BNO080/BNO085 Configuration
 	//Enable dynamic calibration for accelerometer, gyroscope, and magnetometer
 	//Enable Game Rotation Vector output
 	//Enable Magnetic Field output
-	BNO080_calibrateAll();
-	BNO080_enableGameRotationVector(10000);
-	BNO080_enableMagnetometer(10000);
+	BNO080_calibrateAll(); //Turn on cal for Accel, Gyro, and Mag
+	BNO080_enableGameRotationVector(20000); //Send data update every 20ms (50Hz)
+	BNO080_enableMagnetometer(20000); //Send data update every 20ms (50Hz)
 
-	printf("BNO080_Calibration Start\n");
+	//Once magnetic field is 2 or 3, run the Save DCD Now command
+  	printf("Calibrating BNO080. Pull up FS-i6 SWC to end calibration and save to flash\n");
+  	printf("Output in form x, y, z, in uTesla\n\n");
 
 	//while loop for calibration procedure
 	//Iterates until iBus.SwC is mid point (1500)
@@ -85,16 +85,16 @@ void BNO080_Calibration(void)
 			else if (accuracy == 3) printf("High\t");
 
 			printf("\t%f,%f,%f,%f,", quatI, quatI, quatI, quatReal);
-			if (sensorAccuracy == 0) printf("Unreliable\t");
-			else if (sensorAccuracy == 1) printf("Low\t");
-			else if (sensorAccuracy == 2) printf("Medium\t");
+			if (sensorAccuracy == 0) printf("Unreliable\n");
+			else if (sensorAccuracy == 1) printf("Low\n");
+			else if (sensorAccuracy == 2) printf("Medium\n");
 			else if (sensorAccuracy == 3) printf("High\n");
 
 			//Turn the LED and buzzer on when both accuracy and sensorAccuracy is high
 			if(accuracy == 3 && sensorAccuracy == 3)
 			{
 				LL_GPIO_SetOutputPin(GPIOC, LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2);
-				TIM3->PSC = 65000;
+				TIM3->PSC = 65000; //Very low frequency
 				LL_TIM_CC_EnableChannel(TIM3, LL_TIM_CHANNEL_CH4);
 			}
 			else
@@ -110,8 +110,8 @@ void BNO080_Calibration(void)
 
 	//Ends the loop when iBus.SwC is not mid point
 	//Turn the LED and buzzer off
-	LL_TIM_CC_DisableChannel(TIM3, LL_TIM_CHANNEL_CH4);
 	LL_GPIO_ResetOutputPin(GPIOC, LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2);
+	LL_TIM_CC_DisableChannel(TIM3, LL_TIM_CHANNEL_CH4);
 
 	//Saves the current dynamic calibration data (DCD) to memory
 	//Sends command to get the latest calibration status
@@ -131,12 +131,10 @@ void BNO080_Calibration(void)
 			{
 				printf("\nCalibration data successfully stored\n");
 				LL_TIM_CC_EnableChannel(TIM3, LL_TIM_CHANNEL_CH4);
-
 				TIM3->PSC = 2000;
 				HAL_Delay(300);
 				TIM3->PSC = 1500;
 				HAL_Delay(300);
-
 				LL_TIM_CC_DisableChannel(TIM3, LL_TIM_CHANNEL_CH4);
 				HAL_Delay(1000);
 				break;
@@ -148,24 +146,20 @@ void BNO080_Calibration(void)
 	{
 		printf("\nCalibration data failed to store. Please try again.\n");
 		LL_TIM_CC_EnableChannel(TIM3, LL_TIM_CHANNEL_CH4);
-
 		TIM3->PSC = 1500;
 		HAL_Delay(300);
 		TIM3->PSC = 2000;
 		HAL_Delay(300);
-
 		LL_TIM_CC_DisableChannel(TIM3, LL_TIM_CHANNEL_CH4);
+		HAL_Delay(1000);
 	}
-
-	RESET_LOW();
-	HAL_Delay(200);
-	RESET_HIGH();
-	HAL_Delay(300); //Resets BNO080 to disable Game Rotation Vector and Magnetometer
-
-	//Enables Rotation Vector
-	BNO080_enableRotationVector(2500);
 
 	//BNO080_endCalibration(); //Turns off all calibration
 	//In general, calibration should be left on at all times. The BNO080
 	//auto-calibrates and auto-records cal data roughly every 5 minutes
+	
+	//Resets BNO080 to disable Game Rotation Vector and Magnetometer
+	//Enables Rotation Vector
+	BNO080_Initialization(); 
+	BNO080_enableRotationVector(2500); //Send data update every 2.5ms (400Hz)
 }
