@@ -15,7 +15,8 @@
   *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
-  * https://www.udemy.com/course/stm32-drone-programming/
+  * https://www.udemy.com/course/stm32-drone-programming/?referralCode=E24CB7B1CD9993855D45
+  * https://www.inflearn.com/course/stm32cubelde-stm32f4%EB%93%9C%EB%A1%A0-%EA%B0%9C%EB%B0%9C
   */
 /* USER CODE END Header */
 
