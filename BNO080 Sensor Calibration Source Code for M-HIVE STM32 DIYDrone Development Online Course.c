@@ -37,7 +37,7 @@
  *
  * https://github.com/ChrisWonyeobPark/
  * https://cafe.naver.com/mhiveacademy
- * https://www.udemy.com/course/stm32-drone-programming/
+ * https://www.udemy.com/course/stm32-drone-programming/?referralCode=E24CB7B1CD9993855D45
  * https://www.inflearn.com/course/STM32CubelDE-STM32F4%EB%93%9C%EB%A1%A0-%EA%B0%9C%EB%B0%9C#
  * 
  * Special thanks to Nathan Seidle @ SparkFun Electronics, the original creator of the BNO080 arduino library.
