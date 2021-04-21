@@ -39,6 +39,7 @@
  * Rev. 1.0
  *
  * https://github.com/ChrisWonyeobPark/BNO080-STM32F4-SPI-LL-Driver
+ * https://www.udemy.com/course/stm32-drone-programming/
  */
 
 #include "BNO080.h"
